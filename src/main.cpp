@@ -115,7 +115,7 @@ static const char fullJson[] PROGMEM = ( R"(
       "id":6,
       "type":"Alarm",
       "name":"Alarms",
-      "data":{"start":0.01,"length":10,"time":20}
+      "data":{"start":0.01,"length":10,"time":10}
     },
     {
       "id":16,
