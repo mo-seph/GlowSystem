@@ -83,6 +83,8 @@ FastLEDGlowStrip strip(NUM_LEDS,leds, current);
 //GlowController glowControl(&strip,id,name);
 GlowController glowControl(&strip,strname(DEVICE_ID),strname(DEVICE_NAME));
 
+
+
 bool ota_running = false;
 
 /*
@@ -159,8 +161,13 @@ void setup() {
   glowControl.addConnector(new SerialConnector());
   glowControl.addConnector(new MQTTConnector(&client, mqtt_server, mqtt_port));
 
-  glowControl.update(fullJson);
-  Serial.println(F("Done loading behaviours"));
+  Serial.println(F("-----\nLoading behaviours\n-------"));
+  DynamicJsonDocument initialState(8000);
+
+  DeserializationError error = deserializeJson(initialState, fullJson);
+  if (error) { Serial.print(F("deserializeJson() failed: ")); Serial.println(error.f_str()); }
+  glowControl.processInput(initialState.as<JsonVariant>());
+  Serial.println(F("-----\nDone Loading behaviours\n-------"));
 
   Serial.println(F("Starting up"));
   FRGBW startupColor = FRGBW(0,0,0,0.5);
@@ -174,13 +181,4 @@ void setup() {
 
 void loop(){
   glowControl.loop();
-  /*
-  if( ! ota_running && WiFi.status() == WL_CONNECTED ) {
-    ota_running = true;
-    Serial.println("Starting OTA");
-    ArduinoOTA.setHostname(strname(DEVICE_ID));
-    ArduinoOTA.begin();
-  }
-  if(ota_running ) { ArduinoOTA.handle();}
-  */
 }
