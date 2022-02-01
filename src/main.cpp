@@ -56,8 +56,8 @@ const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 3600;
 const int   daylightOffset_sec = 3600;
 
-const char* id = "living";
-const char* name = "Living Room Lights";
+//const char* id = "living";
+//const char* name = "Living Room Lights";
 
 #define str(x) #x
 #define strname(name) str(name)
@@ -109,25 +109,42 @@ static const char fullJson[] PROGMEM = ( R"(
       "id":0,
       "type":"Fill",
       "name":"Base",
-      "data":{"r":0.0,"b":0.0,"g":0.0,"w":0.4}
+      "data":{"r":0.1,"b":0.0,"g":0.0,"w":0.3}
     },
-
 
     {
       "id":6,
-      "type":"Alarm",
-      "name":"Alarms",
+      "type":"PixelCountdown",
+      "name":"CountdownTimer",
       "data":{"start":0.01,"length":10,"time":10}
     },
     {
-      "id":16,
+      "id":8,
+      "type":"ColorAlarm",
+      "name":"Daily Alarm",
+      "data":{"start":0.00,"end":0.03,"hour":19,"minute":23,"timeBefore":15,"timeAfter":0.5}
+    },
+    {
+      "id":14,
       "type":"Watchdog",
-      "name":"Chk"
+      "name":"Watchdog"
     }
   ]
 })");
 
 /*
+    {
+      "id":4,
+      "type":"Glow",
+      "name":"Glow 1",
+      "data":{"r":0.8,"b":0.0,"g":0.0,"w":0.0,"rate":0.4}
+    },
+    {
+      "id":5,
+      "type":"Glow",
+      "name":"Glow 2",
+      "data":{"r":0.8,"b":0.0,"g":0.0,"w":0.0,"rate":0.4}
+    },
 
 */
 
