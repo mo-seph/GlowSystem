@@ -24,6 +24,7 @@
 #include "NTPFeature.h"
 #include "WiFIFeature.h"
 #include "SerialConnector.h"
+#include "ControlManager.h"
 
 //Need to include this here if we want it in the WiFiFeature
 #include <ArduinoOTA.h>
@@ -83,7 +84,9 @@ FastLEDGlowStrip strip(NUM_LEDS,leds, current);
 //GlowController glowControl(&strip,id,name);
 GlowController glowControl(&strip,strname(DEVICE_ID),strname(DEVICE_NAME));
 
+DynamicJsonDocument controlsSetup(2000);
 
+#include "SPIFFS.h" 
 
 bool ota_running = false;
 
@@ -111,19 +114,6 @@ static const char fullJson[] PROGMEM = ( R"(
       "name":"Base",
       "data":{"r":0.1,"b":0.0,"g":0.0,"w":0.3}
     },
-
-    {
-      "id":6,
-      "type":"PixelCountdown",
-      "name":"CountdownTimer",
-      "data":{"start":0.01,"length":10,"time":10}
-    },
-    {
-      "id":8,
-      "type":"ColorAlarm",
-      "name":"Daily Alarm",
-      "data":{"start":0.00,"end":0.03,"hour":19,"minute":23,"timeBefore":15,"timeAfter":0.5}
-    },
     {
       "id":14,
       "type":"Watchdog",
@@ -148,7 +138,42 @@ static const char fullJson[] PROGMEM = ( R"(
 
 */
 
-
+static const char controllerJSON[] PROGMEM = ( R"(
+{
+  "controls":
+  [
+    {
+      "type":"knob",
+      "id":1,
+      "pin":5,
+      "path":["data","r"]
+    },
+    {
+      "type":"toggle",
+      "id":0,
+      "pin":27,
+      "path":["active"]
+    },
+    {
+      "type":"cknob",
+      "id":0,
+      "pin":34,
+      "max":2,
+      "min":-2,
+      "deadzone":0.5,
+      "path":["data","h+"]
+    },
+  
+    {
+      "type":"value",
+      "id":0,
+      "pin":4,
+      "value":20,
+      "path":["data","h+"]
+    }
+  ]
+}
+)");
 
 
 
@@ -161,6 +186,8 @@ void setup() {
   Serial.begin(115200);
   while(!Serial && millis() < 4000 ) {}
   Serial.println("Starting out...");
+
+
 
   /* Serial version */
   FastLED.addLeds<WS2812B, LED_DATA_PIN, RGB>(ledsRGB, getRGBWsize(NUM_LEDS));
@@ -178,11 +205,41 @@ void setup() {
   glowControl.addConnector(new SerialConnector());
   glowControl.addConnector(new MQTTConnector(&client, mqtt_server, mqtt_port));
 
+  DeserializationError error = deserializeJson(controlsSetup, controllerJSON);
+  Serial.println("**** Setting up Controls ****");
+  if (error) { 
+    Serial.println("!! No controls");
+    Serial.print(F("deserializeJson() failed for controls: ")); Serial.println(error.f_str()); } 
+  else {
+    Serial.println("Making controls:");
+    glowControl.addFeature(new Controllers(controlsSetup.as<JsonVariant>()));
+  }
+  Serial.println("**** Done Setting up Controls ****");
+
   Serial.println(F("-----\nLoading behaviours\n-------"));
   DynamicJsonDocument initialState(8000);
+  bool initialisedFromFile = false;
+  if( SPIFFS.begin() ) {
+    Serial.println("Filesystem OK");
+    if( SPIFFS.exists("/conf.json") ) { 
+      Serial.println("Config file exists");
+    }
+    else { Serial.println("File not found...");}
+    //File f = SPIFFS.open('/in.json',"r");
+    File f = SPIFFS.open("/conf.json", "r");
+    if( f ) {
+      DeserializationError error = deserializeJson(initialState, f);
+      if (error) { Serial.print(F("deserializeJson() failed: ")); Serial.println(error.f_str()); } 
+      else { initialisedFromFile = true; }
+    }
+  } else { Serial.println("Couldn't load file"); }
 
-  DeserializationError error = deserializeJson(initialState, fullJson);
-  if (error) { Serial.print(F("deserializeJson() failed: ")); Serial.println(error.f_str()); }
+  if( ! initialisedFromFile ) {
+    DeserializationError error = deserializeJson(initialState, fullJson);
+    if (error) { Serial.print(F("deserializeJson() failed: ")); Serial.println(error.f_str()); }
+  }
+
+
   glowControl.processInput(initialState.as<JsonVariant>());
   Serial.println(F("-----\nDone Loading behaviours\n-------"));
 
