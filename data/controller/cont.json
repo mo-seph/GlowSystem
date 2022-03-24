@@ -1,0 +1,35 @@
+{
+    "controls":
+    [
+      {
+        "type":"knob",
+        "id":1,
+        "pin":5,
+        "path":["data","r"]
+      },
+      {
+        "type":"toggle",
+        "id":0,
+        "pin":27,
+        "path":["active"]
+      },
+      {
+        "type":"cknob",
+        "id":0,
+        "pin":34,
+        "max":2,
+        "min":-2,
+        "deadzone":0.05,
+        "update":100,
+        "path":["data","h+"]
+      },
+    
+      {
+        "type":"value",
+        "id":0,
+        "pin":4,
+        "value":20,
+        "path":["data","h+"]
+      }
+    ]
+  }

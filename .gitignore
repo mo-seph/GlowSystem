@@ -5,3 +5,6 @@
 .vscode
 .vscode/*
 .vscode/launch.json
+wifi.ini
+src/main.cpp.old
+src/main.cpp.old2
