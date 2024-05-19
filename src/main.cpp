@@ -1,10 +1,10 @@
 
 #define FASTLED_ESP32_I2S true
 
-#include "strip/FastLEDGlowStrip.h"
-#include "ControlDefaults.h"
-#include "GlowController.h"
-#include "strip/FastLED_RGBW.h"
+#include <strip/FastLEDGlowStrip.h>
+#include <ControlDefaults.h>
+#include <GlowController.h>
+#include <strip/FastLED_RGBW.h>
 
 #include <ArduinoOTA.h>
 

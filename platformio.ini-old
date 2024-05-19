@@ -8,44 +8,51 @@
 ; Please visit documentation for the other options and examples
 ; https://docs.platformio.org/page/projectconf.html
 
+; [env:teensy35]
+; platform = teensy
+; board = teensy35
+; framework = arduino
+; lib_deps =
+  ; ArduinoJson
+  ; FastLED
+  ; Time
+; lib_extra_dirs =
+    ; ../
+; monitor_speed = 115200
+; monitor_filters = send_on_enter
 [platformio]
-default_envs = study_shelf
+;default_envs = study_test
+default_envs = living_room
+;default_envs = living_beam
 data_dir = data/default
 extra_configs = wifi.ini
 
 [env]
 framework = arduino
 lib_deps =
-  ;https://github.com/mo-seph/GlowController.git
   ArduinoJson @ 7.0.4
-  GlowController=symlink://../../LivingRoomLEDs/GlowController
+  fastled/FastLED @ 3.6.0
+  PubSubClient @ 2.8
+  LinkedList @ 0.0.0-alpha+sha.dac3874d28
+  ;SPIFFS
+  Bounce2 @ 2.72
+  adafruit/Adafruit BusIO @ 1.16.0
+	adafruit/Adafruit NeoPixel@^1.12.0
+  adafruit/Adafruit seesaw Library@^1.7.5
+  SPI @ 2.0.0
 
+lib_extra_dirs =
+    ../
 build_flags =
+  ;-DTIME_LOGGING
 board_build.filesystem = littlefs
 board_build.partitions = default.csv 
+
+data_dir = 'data/default'
 
 monitor_speed = 115200
 monitor_filters = send_on_enter
 
-
-
-[env:study_shelf]
-platform = https://github.com/Jason2866/platform-espressif32.git#v2.0.3
-board = esp32thing
-;board = az-delivery-devkit-v4
-
-upload_protocol = espota
-upload_port = "study_shelf.local"
-
-build_flags =
-  -DDEVICE_NAME="Study Shelf Edge"
-  -DDEVICE_ID="study_shelf"
-  -DDEVICE_TYPE="beam_strip"
-  -DNUM_LEDS=144
-  -DLED_DATA_PIN=12
-  -DWIFI_SSID=${wifi.ssid}
-  -DWIFI_PASSWORD=${wifi.password}
-  -DMQTT_SERVER=${wifi.mqtt_server}
 
 [env:living_room]
 platform = espressif32
@@ -127,6 +134,30 @@ build_flags =
   -DDEVICE_ID="plugin_test"
   -DDEVICE_TYPE="test_device"
   -DNUM_LEDS=300
+  -DLED_DATA_PIN=12
+  -DWIFI_SSID=${wifi.ssid}
+  -DWIFI_PASSWORD=${wifi.password}
+  -DMQTT_SERVER=${wifi.mqtt_server}
+
+[env:study_shelf]
+;platform = espressif32
+;platform = espressif32 @ 6.4.0
+platform = https://github.com/Jason2866/platform-espressif32.git#v2.0.3
+board = esp32thing
+;board = az-delivery-devkit-v4
+extra_scripts = pre:data_dir_per_env.py
+
+monitor_speed = 115200
+monitor_filters = send_on_enter
+;upload_port = /dev/cu.usbserial-0001
+;monitor_port = /dev/cu.usbserial-0001
+upload_protocol = espota
+upload_port = "study_shelf.local"
+build_flags =
+  -DDEVICE_NAME="Study Shelf Edge"
+  -DDEVICE_ID="study_shelf"
+  -DDEVICE_TYPE="beam_strip"
+  -DNUM_LEDS=144
   -DLED_DATA_PIN=12
   -DWIFI_SSID=${wifi.ssid}
   -DWIFI_PASSWORD=${wifi.password}
