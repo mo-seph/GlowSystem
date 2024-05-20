@@ -28,11 +28,13 @@ void setup() {
     FastLED.addLeds<WS2812B, LED_DATA_PIN, RGB>(ledsRGB, getRGBWsize(NUM_LEDS));
 
     FastLED.setBrightness(brightness);
+    strip.fillRGBW(FRGBW(0,0,0,0),0,NUM_LEDS-1);
     strip.show();
     glowControl.initialise();
     glowControl.setupBaseFeatures(strname(WIFI_SSID), strname(WIFI_PASSWORD), strname(MQTT_SERVER), MQTT_PORT, GMT_OFFSET, DAYLIGHT_OFFSET, strname(NTP_SERVER));
     glowControl.setupControls();
     glowControl.setupBehaviours();
+    glowControl.loadState();
 
 }
 
